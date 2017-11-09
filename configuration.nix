@@ -5,79 +5,40 @@
     ./hardware-configuration.nix
   ];
 
-  boot = {
-    kernel = {
-      sysctl."vm.overcommit_memory" = "1";
-    };
+  boot.kernel.sysctl."vm.overcommit_memory" = "1";
 
-    loader = {
-      grub.device = "/dev/vda";
-      grub.enable = true;
-      grub.version = 2;
-    };
-  };
+  boot.loader.grub.device = "/dev/vda";
+  boot.loader.grub.enable = true;
+  boot.loader.grub.version = 2;
 
-  environment = {
-    systemPackages = with pkgs; [
-      curl
-      gcc
-      git
-      nix-repl
-      tmux
-      vim
-      wget
-    ];
+  environment.systemPackages = with pkgs; [
+    curl
+    gcc
+    git
+    gzip
+    nix-repl
+    vim
+    wget
+    zip
+  ];
 
-    variables = {
-      EDITOR = "vim";
-    };
-  };
+  environment.variables.EDITOR = "vim";
 
-  i18n = {
-    defaultLocale = "en_US.UTF-8";
-  };
+  i18n.defaultLocale = "en_US.UTF-8";
 
-  networking = {
-    hostName = "merkle";
-  };
+  networking.hostName = "nixos";
 
-  nixpkgs.config = {
-    allowBroken = true;
-    allowUnfree = true;
-  };
+  nixpkgs.config.allowUnfree = true;
 
-  programs = {
-    bash = {
-      enableCompletion = true;
-    };
+  programs.bash.enableCompletion = true;
+  programs.ssh.startAgent = true;
 
-    ssh = {
-      startAgent = true;
-    };
-  };
-
-  services = {
-    openssh = {
-      enable = true;
-      permitRootLogin = "prohibit-password";
-    };
-  };
+  services.openssh.enable = true;
+  services.openssh.permitRootLogin = "prohibit-password";
 
   time.timeZone = "America/New_York";
 
-  users = {
-    extraUsers = {
-      ghost = {
-        extraGroups = [ "wheel" ];
-        isNormalUser = true;
-        openssh.authorizedKeys.keys = with import ./ssh-keys.nix; [ sean ];
-      };
+  users.users.root.openssh.authorizedKeys.keys = with import ./ssh-keys.nix; [ bootstrap ];
 
-      root = {
-        openssh.authorizedKeys.keys = with import ./ssh-keys.nix; [ sean ];
-      };
-    };
-  };
-
-  system.stateVersion = "18.03";
+  system.stateVersion = "17.09";
 }
